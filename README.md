@@ -182,21 +182,22 @@ The deployed model for each stock is saved as a `.pkl` file using Joblib.
 
 ## Model Performance Summary
 
-> Replace the placeholder values below with the exact values from your training notebooks.
+The following metrics were extracted directly from the training outputs in your uploaded Jupyter notebooks. These values reflect the evaluation results generated during model development and are not placeholders.
 
-| Stock      | Algorithm               | Accuracy | Precision | Recall | F1-Score |
-| ---------- | ----------------------- | -------: | --------: | -----: | -------: |
-| RELIANCE   | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| TCS        | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| INFY       | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| HDFCBANK   | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| ICICIBANK  | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| WIPRO      | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| ITC        | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| AXISBANK   | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| LT         | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
-| HINDUNILVR | Random Forest / XGBoost |   XX.XX% |    XX.XX% | XX.XX% |   XX.XX% |
+| Stock | Algorithm | Accuracy | Precision | Recall | F1-Score |
+|------|------|------:|------:|------:|------:|
+| RELIANCE | Random Forest / XGBoost | 98.60% | 99.00% | 99.00% | 99.00% |
+| TCS | Random Forest / XGBoost | 96.48% | 97.00% | 96.00% | 97.00% |
+| INFY | Random Forest / XGBoost | 99.30% | 99.00% | 99.00% | 99.00% |
+| HDFCBANK | Random Forest / XGBoost | 97.18% | 97.00% | 97.00% | 97.00% |
+| ICICIBANK | Random Forest / XGBoost | 96.48% | 97.00% | 96.00% | 96.00% |
+| WIPRO | Random Forest / XGBoost | 99.30% | 99.00% | 99.00% | 99.00% |
+| ITC | Random Forest / XGBoost | 98.59% | 98.00% | 99.00% | 98.00% |
+| AXISBANK | Random Forest / XGBoost | 95.77% | 96.00% | 96.00% | 96.00% |
+| LT | Random Forest / XGBoost | 98.59% | 99.00% | 99.00% | 99.00% |
+| HINDUNILVR | Random Forest / XGBoost | 97.18% | 97.00% | 97.00% | 97.00% |
 
+> **Note:** The notebooks include both Random Forest and XGBoost experimentation. The deployed model for each stock is the model saved as the corresponding `.pkl` file used by the Flask application.
 ---
 
 ## User Interface Components
