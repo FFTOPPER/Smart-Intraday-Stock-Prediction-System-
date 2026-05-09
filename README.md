@@ -180,6 +180,60 @@ The deployed model for each stock is saved as a `.pkl` file using Joblib.
 
 ---
 
+## Model Evolution and Algorithm Selection
+
+During the initial stages of development, multiple machine learning and deep learning approaches were evaluated to identify the most suitable model for short-term intraday stock movement prediction.
+
+### Phase 1: LSTM (Long Short-Term Memory)
+
+The project initially explored LSTM networks because stock prices are sequential time-series data. LSTMs are designed to capture temporal dependencies and are widely used in financial forecasting.
+
+However, the LSTM-based approach presented several challenges:
+
+- Longer training times
+- Higher computational requirements
+- More complex hyperparameter tuning
+- Increased risk of overfitting on limited intraday data
+- Less interpretability compared to tree-based models
+
+### Phase 2: Random Forest
+
+The next approach used Random Forest classifiers with engineered technical indicators as input features.
+
+Random Forest provided several advantages:
+
+- Fast training and inference
+- Robust performance on tabular data
+- Reduced overfitting through ensemble averaging
+- Easy feature importance analysis
+
+This approach significantly improved both prediction stability and deployment simplicity.
+
+### Phase 3: XGBoost
+
+XGBoost was then evaluated as an advanced gradient boosting algorithm.
+
+XGBoost offered:
+
+- Improved predictive accuracy
+- Better handling of complex feature interactions
+- Built-in regularization
+- High efficiency and scalability
+
+In several experiments, XGBoost achieved slightly better validation performance than Random Forest.
+
+### Final Deployment Strategy
+
+Both Random Forest and XGBoost models were evaluated for each stock. The best-performing model for each company was saved as the final `.pkl` file used by the Flask application.
+
+This iterative progression from LSTM to Random Forest and XGBoost demonstrates a practical model selection process focused on balancing:
+
+- Accuracy
+- Speed
+- Interpretability
+- Deployment simplicity
+- Real-time inference capability
+
 ## Model Performance Summary
 
 The following metrics were extracted directly from the training outputs in your uploaded Jupyter notebooks. These values reflect the evaluation results generated during model development and are not placeholders.
