@@ -477,7 +477,7 @@ The confidence score indicates how strongly the model supports the predicted sig
 
 Data Science and Machine Learning Enthusiast
 
-LinkedIn: https://www.linkedin.com/in/adhejeb
+LinkedIn: https://www.linkedin.com/in/b-adheje
 
 ---
 
