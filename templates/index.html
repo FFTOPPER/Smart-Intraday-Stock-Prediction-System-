@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Stock Prediction Dashboard</title>
+
+    <!-- Auto refresh every 30 sec -->
+   <!--- <meta http-equiv="refresh" content="10"> --->
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #f4f7fb, #e3e9f0);
+            margin: 0;
+            padding: 40px;
+            color: #1f2933;
+        }
+
+        .dashboard {
+            max-width: 1280px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 35px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 26px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, #ffffff, #f9fbfd);
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(0,0,0,.15);
+        }
+
+        .card h3 {
+            margin-bottom: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 6px;
+        }
+
+        .info { font-size: 14.5px; margin: 6px 0; }
+
+        .market-open { color: #16a34a; font-weight: 700; }
+        .market-closed { color: #dc2626; font-weight: 700; }
+
+        .signal-text {
+            font-size: 46px;
+            font-weight: 800;
+            text-align: center;
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
+        }
+
+        .buy { color: #16a34a; }
+        .sell { color: #dc2626; }
+        .hold { color: #f59e0b; }
+
+        .confidence { font-size: 16px; color: #6b7280; text-align:center; }
+
+        .reason {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #6366f1;
+            line-height: 1.6;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-weight: 600;
+        }
+
+        #interactive-chart { height: 540px; }
+        #signal-chart { height: 320px; }
+        #indicators-chart { height: 500px; }
+
+        img {
+            width: 100%;
+            border-radius: 14px;
+            margin-top: 10px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+        }
+
+        .section { margin-top: 40px; }
+
+        .footer {
+            text-align: center;
+            margin-top: 45px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <h1>📊 Intraday ML Trading Dashboard</h1>
+    <h2>{{ result['Symbol'] }} • Live Market Insights</h2>
+
+    <!-- TOP INFO -->
+    <div class="grid">
+
+        <div class="card">
+            <h3>🏢 Select Company</h3>
+            <form method="get">
+                <select name="company" onchange="this.form.submit()">
+                    {% for c in companies %}
+                        <option value="{{ c }}" {% if c == selected_company %}selected{% endif %}>
+                            {{ c }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>🕒 Market Status</h3>
+            <div class="info">
+                Status:
+                <span class="{% if market_status == 'OPEN' %}market-open{% else %}market-closed{% endif %}">
+                    {{ market_status }}
+                </span>
+            </div>
+
+            <div class="info">
+                Current Time:
+                <span id="live-time">{{ current_time }}</span>
+            </div>
+
+            {% if market_status == 'OPEN' %}
+                <div class="info">Next Candle: {{ next_candle_time }}</div>
+                <div class="info">
+                    Countdown: {{ countdown_seconds // 60 }} min {{ countdown_seconds % 60 }} sec
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>🚦 Trading Signal</h3>
+            <div class="signal-text
+                {% if result['Signal'] == 'BUY' %}buy
+                {% elif result['Signal'] == 'SELL' %}sell
+                {% else %}hold{% endif %}">
+                {{ result['Signal'] }}
+            </div>
+            <div class="confidence">Confidence: {{ result['Confidence'] }}</div>
+        </div>
+    </div>
+
+    <!-- REASONS -->
+    <div class="grid section">
+        <div class="card">
+            <h3>📌 Simple Explanation</h3>
+            <div class="reason">{{ result['Simple Reason'] }}</div>
+        </div>
+        <div class="card">
+            <h3>📈 Technical Explanation</h3>
+            <div class="reason">{{ result['Technical Reason'] }}</div>
+        </div>
+    </div>
+
+    <!-- PRICE CHART -->
+    <div class="card section">
+        <h3>📊 Candlestick Chart</h3>
+
+        <div class="toolbar">
+            <div>
+                <label>Interval:</label>
+                <select id="intervalSelect" onchange="updateFilters()">
+    <option value="5m" {% if selected_interval == "5m" %}selected{% endif %}>5 min</option>
+    <option value="15m" {% if selected_interval == "15m" %}selected{% endif %}>15 min</option>
+    <option value="30m" {% if selected_interval == "30m" %}selected{% endif %}>30 min</option>
+</select>
+            </div>
+
+            <div>
+                <label>Days:</label>
+                <select id="daysSelect" onchange="updateFilters()">
+    <option value="today" {% if selected_days == "today" %}selected{% endif %}>Today</option>
+    <option value="2d" {% if selected_days == "2d" %}selected{% endif %}>2 Days</option>
+    <option value="5d" {% if selected_days == "5d" %}selected{% endif %}>5 Days</option>
+</select>
+
+            </div>
+        </div>
+
+        <div id="interactive-chart"></div>
+    </div>
+
+    <!-- SIGNAL CHART -->
+    <div class="card section">
+        <h3>📶 BUY / HOLD / SELL Timeline</h3>
+        <div id="signal-chart"></div>
+    </div>
+
+    <!-- INDICATORS -->
+    <div class="card section">
+        <h3>📊 Technical Indicators</h3>
+        <div id="indicators-chart"></div>
+    </div>
+
+    <!-- SAVED IMAGE -->
+    <div class="card section">
+        <h3>🖼 Saved Snapshot</h3>
+        <img src="/charts/{{ chart_file }}" alt="Saved Chart">
+    </div>
+
+    <div class="footer">
+        🔄 Auto-refreshes every 5-minutes.
+    </div>
+
+</div>
+
+<script>
+let interval = "{{ selected_interval }}";
+let days = "{{ selected_days }}";
+let company = "{{ selected_company }}";
+
+/* 🔄 Update filters and reload page with params */
+function updateFilters() {
+    const intervalValue = document.getElementById("intervalSelect").value;
+    const daysValue = document.getElementById("daysSelect").value;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("company", company);
+    params.set("interval", intervalValue);
+    params.set("days", daysValue);
+
+    window.location.search = params.toString();
+}
+
+/* 🔁 Reload charts using selected filters */
+function reloadCharts() {
+    interval = document.getElementById("intervalSelect").value;
+    days = document.getElementById("daysSelect").value;
+
+    loadPriceChart();
+    loadSignalChart();
+    loadIndicatorChart();
+}
+
+function loadPriceChart() {
+    fetch(`/live-data?company=${company}&interval=${interval}&days=${days}`)
+    .then(r => r.json())
+    .then(d => {
+        Plotly.newPlot("interactive-chart", [{
+            x: d.time,
+            open: d.open,
+            high: d.high,
+            low: d.low,
+            close: d.close,
+            type: "candlestick",
+            increasing: {line:{color:"#16a34a"}},
+            decreasing: {line:{color:"#dc2626"}}
+        }], {xaxis:{rangeslider:{visible:false}}});
+    });
+}
+
+function loadSignalChart() {
+    fetch(`/signal-data?company=${company}&interval=${interval}&days=${days}`)
+    .then(r => r.json())
+    .then(d => {
+        Plotly.newPlot("signal-chart", [{
+            x: d.time,
+            y: d.signal,
+            mode: "lines+markers",
+            line: {shape:"hv", width:3, color:"#4f46e5"}
+        }], {
+            yaxis:{
+                tickvals:[-1,0,1],
+                ticktext:["SELL","HOLD","BUY"]
+            }
+        });
+    });
+}
+
+function loadIndicatorChart() {
+    fetch(`/indicator-data?company=${company}&interval=${interval}`)
+    .then(r => r.json())
+    .then(d => {
+        Plotly.newPlot("indicators-chart", [
+            {x:d.time,y:d.rsi,name:"RSI"},
+            {x:d.time,y:d.macd,name:"MACD"},
+            {x:d.time,y:d.macd_signal,name:"MACD Signal"},
+            {x:d.time,y:d.ema,name:"EMA 20"},
+            {x:d.time,y:d.adx,name:"ADX"},
+            {x:d.time,y:d.atr,name:"ATR"},
+            {x:d.time,y:d.vol_osc,name:"Volume Osc"}
+        ], {xaxis:{rangeslider:{visible:false}}});
+    });
+}
+
+/* 🔴 LIVE CLOCK */
+function startLiveClock() {
+    let t = new Date("{{ current_time }}".replace(" IST",""));
+    setInterval(() => {
+        t.setSeconds(t.getSeconds()+1);
+        document.getElementById("live-time").innerText =
+            t.getFullYear()+"-"+
+            String(t.getMonth()+1).padStart(2,"0")+"-"+
+            String(t.getDate()).padStart(2,"0")+" "+
+            String(t.getHours()).padStart(2,"0")+":"+
+            String(t.getMinutes()).padStart(2,"0")+":"+
+            String(t.getSeconds()).padStart(2,"0")+" IST";
+    },1000);
+}
+
+reloadCharts();
+startLiveClock();
+
+/* 🔄 AUTO REFRESH EVERY 10 SEC (Preserves Filters) */
+setInterval(() => {
+    const params = new URLSearchParams(window.location.search);
+    window.location.search = params.toString();
+}, 10000);
+
+</script>
+
+
+</body>
+</html>

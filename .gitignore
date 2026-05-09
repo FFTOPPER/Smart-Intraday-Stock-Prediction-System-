@@ -1,0 +1,25 @@
+```gitignore
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# VS Code
+.vscode/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Generated charts
+charts/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+```
